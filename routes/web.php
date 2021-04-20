@@ -17,8 +17,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::resource('/posts', 'PostController');
+
 Auth::routes();
 
-Route::resource('/posts', 'PostController');
+//Route::get('/posts', [App\Http\Controllers\PostsController::class, 'index'])->name('posts');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
