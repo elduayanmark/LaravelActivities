@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Post;
+use App\Post;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
@@ -15,7 +15,7 @@ class PostController extends Controller
     public function index()
     {
         //
-        $posts = \App\Models\Post::get();
+        $posts = Post::get(); 
         return view('posts.index', compact('posts'));
     }
 
@@ -27,11 +27,7 @@ class PostController extends Controller
     public function create()
     {
         //
-        if(Auth::check()){
         return view('posts.create');
-        }else{
-            return redirect('/posts') ->with('Alert', 'Please Log-In First!');
-        }
     }
 
     /**
@@ -42,90 +38,116 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
-        if(Auth::check()){
+ 
+        $request->validate([
+            'title' => 'required|max:100',
+            'description' => 'required'
+        ]);
+
+        if($request->hasFile('img')){
+
+            $filenameWithExt = $request->file('img')->getClientOriginalName();
+
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            
+            $extension = $request->file('img')->getClientOriginalExtension();
+
+            $filenameToStore = $filename.'_'.time().'.'.$extension;
+
+            $path = $request->file('img')->storeAs('public/img', $filenameToStore);
+        } else{
+               
+            $filenameToStore = '';
+        }
+
         $post = new Post();
-        $post->title = $request->title;
-        $post->description = $request->description;
-        $post->save();
+        $post->fill($request->all());
+        $post->img = $filenameToStore;
+
+
+        if ($post->save()){
+            return redirect('/posts')->with('status','Sucessfully save');
+        }
 
         return redirect('/posts');
-        }else{
-            return redirect('/posts') ->with('Alert', 'Please Log-In First!');
-        }
+
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Post  $post
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function show(Post $post)
     {
-        //
-        $post = \App\Models\Posts::find($id);
-        return view('posts.show', compact('posts'));
-
+        return view('posts.show', compact('post'));
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Post  $post
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
     public function edit(Post $post)
     {
-        //
-        if(Auth::check()){
-        $post = \App\Models\Posts::find($id);
-        return view('posts.edit', compact('posts'));
-        }else{
-            return redirect('/posts') ->with('Alert', 'Please Log-In First!');
-        }
-
+        return view('posts.edit', compact('post'));
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Post  $post
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Post $post)
+    public function update(Request $request, $id)
     {
-        //
-        if(Auth::check()){
-        $post = \App\Models\Posts::find($id);
-        $post->title = $request->title;
-        $post->description = $request->description;
+
+        $request->validate([
+            'title' => 'required|max:100',
+            'description' => 'required'
+        ]);
+
+        if($request->hasFile('img')){
+
+            $filenameWithExt = $request->file('img')->getClientOriginalName();
+
+            $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+            
+            $extension = $request->file('img')->getClientOriginalExtension();
+
+            $filenameToStore = $filename.'_'.time().'.'.$extension;
+
+            $path = $request->file('img')->storeAs('public/img', $filenameToStore);
+        } else{
+               
+            $filenameToStore = '';
+        }
+     
+        $post = Post::find($id);
+        $post->fill($request->all());
+        $post->img = $filenameToStore;
         $post->save();
-        
 
         return redirect('/posts');
-    }else {
-        return redirect('/posts') ->with('Alert', 'Please Log-In First!');
+
     }
-}
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Post  $post
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Post $post)
+    public function destroy($id)
     {
         //
-        if(Auth::check()){
-            $post = \App\Models\Post::find($id);
-            $post->delete();
-            return redirect('/posts');
-        }else {
-            return redirect('/posts') ->with('Alert', 'Please Log-In First!');
-        }
 
+        $post = Post::find($id);
+        $post->delete();
+
+        return redirect('/posts');
     }
 }
