@@ -34,21 +34,15 @@
                                     <td> {{ $post->id }} </td>
                                     <td> {{ $post->title }} </td>
                                     <td> {{ $post->description }} </td>
-                                    <td> <a  href="/posts/{{$post->id}}" class="btn btn-info"> View </a> </td>
-                                    <td> <a  href="/posts/{{$post->id}}/edit" class="btn btn-warning"> Edit </a> </td>
-                                    <td> 
-                                    <form action="{{ route('posts.destroy', $post->id) }}" method="POST">
-                                            @method('DELETE')
-                                            @csrf
-                                            <button type="submit" class="btn btn-danger">Delete </button>
+                                    <td> <a  href="/posts/{{$post->id}}/restore" class="btn btn-info"> restore </a> </td>
+                                    {{-- <td> <a  href="/posts/{{$post->id}}/edit" class="btn btn-warning"> Edit </a> </td> --}}
+                                   
 
                                     </form>
                               </tr>
                             @endforeach
                         </tbody>
                     </table>
-
-                    Total # of Post  {{ $count }}
                 </div>
             </div>
         </div>
